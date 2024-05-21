@@ -1,0 +1,27 @@
+.highlight-row {
+    border: 3px solid lightblue;
+}
+
+.highlight-cell {
+    border: 3px solid lightblue;;
+}
+
+
+/* Adjust the input field size to make the row height consistent */
+.form-control-sm {
+    height: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* Custom class to adjust the width of the input field */
+.small-input {
+    width: 50px;
+}
+
+/* Set a fixed width for the columns to ensure they have similar widths */
+.column-width {
+    width: 150px; /* Adjust this value as needed */
+}
