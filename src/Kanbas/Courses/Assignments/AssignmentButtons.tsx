@@ -3,7 +3,7 @@ import { IoIosCreate } from 'react-icons/io';
 
 export default function AssignmentControlButtons() {
     return (
-        <div className="d-inline-flex align-items-center">
+        <div className="d-inline-flex align-items-center text-success">
             <span className="me-1 position-relative" style={{ width: '24px', height: '24px' }}>
                 <BsGripVertical
                     style={{ top: '2px', width: '24px', height: '24px' }}

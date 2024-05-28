@@ -1,8 +1,14 @@
-#wd-dashboard {padding-left: 25px;}
+/* index.css */
+.text-navy {
+    color: navy;
+}
 
-/*
-#wd-dashboard {
-    width: 260px;
-    margin: 35px; 
- }
- */
+.font-weight-bold {
+    font-weight: bold;
+}
+
+.text-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

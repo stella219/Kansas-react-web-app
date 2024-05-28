@@ -3,7 +3,7 @@ import { FaCheckCircle, FaCircle } from 'react-icons/fa';
 
 export default function AssignmentControlButtons() {
     return (
-        <div className="d-inline-flex align-items-center">
+        <div className="d-inline-flex align-items-center text-success">
             <span className="me-1 position-relative" style={{ width: '24px', height: '24px' }}>
                 <FaCheckCircle
                     style={{ top: '2px', width: '18px', height: '18px' }}

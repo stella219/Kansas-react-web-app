@@ -1,14 +1,23 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { IoIosArrowDown } from 'react-icons/io';
-import { FaRegCalendarAlt } from 'react-icons/fa';
+import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
+import { assignments } from '../../Database';
 
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams();
+    const assignment = assignments.find((assignment) => assignment._id === aid);
+
+    if (!assignment) {
+        return <div>Assignment not found</div>;
+    }
+
     return (
         <div id="wd-assignment-editor" className="container mt-3">
             <div className="row mb-3 d-flex">
                 <div className="col">
                     <label htmlFor="wd-name" className="form-label">Assignment Name</label>
-                    <input id="wd-name" className="form-control" value="A1" />
+                    <input id="wd-name" className="form-control" value={assignment.title} readOnly />
                 </div>
             </div>
             <div className="row mb-3 d-flex">
@@ -28,13 +37,13 @@ export default function AssignmentEditor() {
                 </div>
             </div>
             <div className="form-group row mb-3 justify-content-end">
-                <div className=" col-lg-12 d-flex justify-content-end align-items-center">
+                <div className="col-lg-12 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-points" className="col-md-4 text-end me-2">Points</label>
-                    <input id="wd-points" className="form-control w-80" value={100} />
+                    <input id="wd-points" className="form-control w-80" value={assignment.points} readOnly />
                 </div>
             </div>
             <div className="form-group row mb-3 justify-content-end">
-                <div className=" col-lg-12 d-flex justify-content-end align-items-center">
+                <div className="col-lg-12 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-group" className="col-md-4 text-end me-2" style={{ whiteSpace: 'nowrap' }}>Assignment Group</label>
                     <div className="position-relative w-100">
                         <select id="wd-group" className="form-control w-160">
@@ -49,20 +58,20 @@ export default function AssignmentEditor() {
                 </div>
             </div>
             <div className="form-group row mb-3 justify-content-end">
-                <div className=" col-lg-12 d-flex justify-content-end align-items-center">
+                <div className="col-lg-12 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-submission-type" className="col-md-4 text-end me-2" style={{ whiteSpace: 'nowrap' }}>Display Grade as</label>
-                        <div className="position-relative w-100">
-                            <select id="wd-submission-type" className="form-control w-160">
-                                <option value="Percentage">Percentage</option>
-                                <option value="Points">Points</option>
-                            </select>
-                            <IoIosArrowDown className="position-absolute" style={{ top: '50%', right: '10px', transform: 'translateY(-50%)' }} />
-                        </div>
+                    <div className="position-relative w-100">
+                        <select id="wd-submission-type" className="form-control w-160">
+                            <option value="Percentage">Percentage</option>
+                            <option value="Points">Points</option>
+                        </select>
+                        <IoIosArrowDown className="position-absolute" style={{ top: '50%', right: '10px', transform: 'translateY(-50%)' }} />
+                    </div>
                 </div>
             </div>   
             <div className="form-group row mb-3 justify-content-end">
-                <div className=" row col-lg-15 d-flex justify-content-end align-items-center position-relative">
-                    <label htmlFor="wd-submission-type" className="col-md-3 text-end me-2">Submission Type</label>
+                <div className="row col-lg-15 d-flex justify-content-end align-items-center">
+                    <label htmlFor="wd-submission-type" className="col-md-3 text-end me-2" style={{ whiteSpace: 'nowrap' }}>Submission Type</label>
                     <div className="col-md-8 border p-3" style={{ borderWidth: '2px' }}>
                         <div className="position-relative w-180">
                             <select id="wd-submission-type" className="form-control mb-2">
@@ -96,24 +105,23 @@ export default function AssignmentEditor() {
                 </div>
             </div>
             <div className="form-group row mb-3 justify-content-end">
-                <div className=" row col-lg-15 d-flex justify-content-end align-items-center position-relative">
-                    <label htmlFor="wd-assign" className="col-md-3 col-form-label text-end">Assign</label>
+                <div className="row col-lg-15 d-flex justify-content-end align-items-center">
+                    <label htmlFor="wd-assign" className="col-md-3 col-form-label text-end" style={{ whiteSpace: 'nowrap' }}>Assign</label>
                     <div className="col-md-8 border p-3">
                         <label htmlFor="wd-assign-to" className="form-label fw-bold">Assign to</label>
                         <select id="wd-assign-to" className="form-control mb-2">
                             <option selected value="Everyone">Everyone      X</option>
                         </select>
                         <label htmlFor="wd-due-date" className="form-label mt-2 fw-bold">Due</label>
-                        <input type="datetime-local" id="wd-due-date" className="form-control mb-2" value="2024-05-13T23:59" />
+                        <input type="text" id="wd-due-date" className="form-control mb-2" value={assignment.until} />
                         <div className="row">
                             <div className="col-md-6">
                                 <label htmlFor="wd-available-from" className="form-label">Available from</label>
-                                <input type="datetime-local" id="wd-available-from" className="form-control mb-2" value="2024-05-06T00:00" />
+                                <input type="text" id="wd-available-from" className="form-control mb-2" value={assignment.available} />
                             </div>
                             <div className="col-md-6">
                                 <label htmlFor="wd-available-until" className="form-label">Until</label>
-                                <input type="datetime-local" id="wd-available-until" className="form-control mb-2 border-end-0 " value=""
-                                />
+                                <input type="datetime-local" id="wd-available-until" className="form-control mb-2 border-end-0"  />
                             </div>
                         </div>
                     </div>
@@ -121,12 +129,10 @@ export default function AssignmentEditor() {
             </div>
             <div className="row">
                 <div className="col text-end">
-                    <button id="wd-cancel-btn" className="btn btn-secondary me-2">Cancel</button>
-                    <button id="wd-save-btn" className="btn btn-danger">Save</button>
+                    <Link to={`/Kanbas/Courses/${cid}/Assignments`} id="wd-cancel-btn" className="btn btn-secondary me-2">Cancel</Link>
+                    <Link to={`/Kanbas/Courses/${cid}/Assignments`} id="wd-save-btn" className="btn btn-danger">Save</Link>
                 </div>
             </div>
         </div>
     );
 }
-
-
