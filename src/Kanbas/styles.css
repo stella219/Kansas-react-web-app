@@ -16,3 +16,7 @@ body * { font-family: Arial, sans-serif;}
 .border-gray {
     border: 1px solid gray;
 }
+
+.wd-kanbas {
+    height:100%;
+}

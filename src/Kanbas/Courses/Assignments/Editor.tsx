@@ -1,64 +1,64 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addAssignment, updateAssignment } from './assignmentsReducer';
 import { useNavigate, useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IoIosArrowDown } from 'react-icons/io';
 import moment from 'moment';
+import * as client from "./client";
+import { updateAssignment, addAssignment } from './assignmentsReducer';
 
-function formatDateInput(dateTimeStr:any) {
-    // Handles conversion to datetime-local format.
-    return moment(dateTimeStr, ['YYYY-MM-DDTHH:mm', 'MMM D [at] hh:mma']).format('YYYY-MM-DDTHH:mm');
-}
-
-function formatDateOutput(dateTimeStr:any) {
-    // Handles conversion to display format.
-    return moment(dateTimeStr).format('MMM D [at] hh:mma');
-}
 
 function AssignmentEditor() {
     const { cid, aid } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const assignments = useSelector((state:any) => state.assignmentsReducer.assignments);
-    const assignment = assignments.find((assignment:any) => assignment._id === aid) || {};
+    const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+    const assignment = assignments.find((assignment: any) => assignment._id === aid) || {};
 
-    const [assignmentObject, setAssignmentObject] = useState({
-        _id: aid === "new" ? new Date().getTime().toString() : aid,
-        title: assignment.title || "",
-        description: assignment.description || "",
-        points: assignment.points || "",
-        due: formatDateInput(assignment.due) || "",
-        available: formatDateInput(assignment.available) || "",
-        until: formatDateInput(assignment.until) || "",
-        course: cid
-    });
+    const currentDate = new Date();
+    const defaultDueDate = assignment.due ? assignment.due : currentDate.toISOString().slice(0, 16);
+    const defaultAvailableFrom = assignment.available ? assignment.available : currentDate.toISOString().slice(0, 10) + "T00:00";
+    const defaultAvailableUntil = assignment.until ? assignment.until : currentDate.toISOString().slice(0, 10) + "T23:59";
+
+    const [title,setTitle] = useState(assignment.title || "");
+    const [description,setDescription] = useState(assignment.description || "");
+    const [points,setPoints] = useState(assignment.points || "");
+    const [due,setDue] = useState(defaultDueDate);
+    const [from,setFrom] = useState(defaultAvailableFrom);
+    const [until,setUntil] = useState(defaultAvailableUntil);
+
 
     useEffect(() => {
         if (aid !== 'new') {
-            setAssignmentObject({
-                ...assignmentObject,
-                title: assignment.title,
-                description: assignment.description,
-                points: assignment.points,
-                due: formatDateInput(assignment.due),
-                available: formatDateInput(assignment.available),
-                until: formatDateInput(assignment.until),
+            client.getAssignment(aid as string).then((assignment) => {
+                setTitle(assignment.title);
+                setDescription(assignment.description);
+                setPoints(assignment.points);
+                setDue(assignment.due);
+                setFrom(assignment.available);
+                setUntil(assignment.until);
             });
         }
-    }, [aid, assignment]);
+    }, [aid]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const formattedAssignment = {
-            ...assignmentObject,
-            due: formatDateOutput(assignmentObject.due),
-            available: formatDateOutput(assignmentObject.available),
-            until: formatDateOutput(assignmentObject.until)
+            _id: aid,
+            title,
+            description,
+            points,
+            due,
+            available: from,
+            until,
+            course: cid
         };
+
         if (aid !== 'new') {
+            await client.updateAssignment(formattedAssignment);
             dispatch(updateAssignment(formattedAssignment));
         } else {
+            await client.createAssignment(cid as string, formattedAssignment);
             dispatch(addAssignment(formattedAssignment));
         }
         navigate(`/Kanbas/Courses/${cid}/Assignments`);
@@ -69,30 +69,30 @@ function AssignmentEditor() {
             <div className="row mb-3 d-flex">
                 <div className="col">
                     <label htmlFor="wd-name" className="form-label">Assignment Name</label>
-                    <input id="wd-name" className="form-control" 
-                        value={assignmentObject.title} 
-                        onChange = { (e) => setAssignmentObject({...assignmentObject, title: e.target.value})}
-                        placeholder="New Assignment"  
+                    <input id="wd-name" className="form-control"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="New Assignment"
                     />
                 </div>
             </div>
             <div className="row mb-3 d-flex">
                 <div className="col">
-                    <textarea 
-                        id = "wd-description"
+                    <textarea
+                        id="wd-description"
                         className="form-control"
-                        value= {assignmentObject.description}
+                        value={description}
                         rows={5}
-                        onChange = { (e) => setAssignmentObject({...assignmentObject, description: e.target.value})}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
             </div>
             <div className="form-group row mb-3 justify-content-end">
                 <div className="col-lg-12 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-points" className="col-md-4 text-end me-2">Points</label>
-                    <input id="wd-points" className="form-control w-80" 
-                        value={assignmentObject.points} 
-                        onChange={(e) => setAssignmentObject({...assignmentObject, points: e.target.value})}
+                    <input id="wd-points" className="form-control w-80"
+                        value={points}
+                        onChange={(e) => setPoints(e.target.value)}
                     />
                 </div>
             </div>
@@ -122,7 +122,7 @@ function AssignmentEditor() {
                         <IoIosArrowDown className="position-absolute" style={{ top: '50%', right: '10px', transform: 'translateY(-50%)' }} />
                     </div>
                 </div>
-            </div> 
+            </div>
             <div className="form-group row mb-3 justify-content-end">
                 <div className="row col-lg-15 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-submission-type" className="col-md-3 text-end me-2" style={{ whiteSpace: 'nowrap' }}>Submission</label>
@@ -157,7 +157,7 @@ function AssignmentEditor() {
                         </div>
                     </div>
                 </div>
-            </div>  
+            </div>
             <div className="form-group row mb-3 justify-content-end">
                 <div className="row col-lg-15 d-flex justify-content-end align-items-center">
                     <label htmlFor="wd-assign" className="col-md-3 col-form-label text-end" style={{ whiteSpace: 'nowrap' }}>Assign</label>
@@ -167,29 +167,29 @@ function AssignmentEditor() {
                             <option selected value="Everyone">Everyone      X</option>
                         </select>
                         <label htmlFor="wd-due-date" className="form-label mt-2 fw-bold">Due</label>
-                        <input type="datetime-local" 
-                            id="wd-due-date" 
-                            className="form-control mb-2" 
-                            value={assignmentObject.due}
-                            onChange = {(e) => setAssignmentObject({...assignmentObject, due: e.target.value})} 
+                        <input type="datetime-local"
+                            id="wd-due-date"
+                            className="form-control mb-2"
+                            value={due}
+                            onChange={(e) => setDue(e.target.value)}
                         />
                         <div className="row">
                             <div className="col-md-6">
                                 <label htmlFor="wd-available-from" className="form-label">Available from</label>
-                                <input type="datetime-local" 
-                                    id="wd-available-from" 
-                                    className="form-control mb-2" 
-                                    value={assignmentObject.available}
-                                    onChange = {(e) => setAssignmentObject({...assignmentObject, available: e.target.value})}
+                                <input type="datetime-local"
+                                    id="wd-available-from"
+                                    className="form-control mb-2"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
                                 />
                             </div>
                             <div className="col-md-6">
                                 <label htmlFor="wd-available-until" className="form-label">Until</label>
-                                <input type="datetime-local" 
-                                    id="wd-available-until" 
+                                <input type="datetime-local"
+                                    id="wd-available-until"
                                     className="form-control mb-2 border-end-0"
-                                    value = {assignmentObject.until}
-                                    onChange = {(e) => setAssignmentObject({...assignmentObject, until: e.target.value})}
+                                    value={until}
+                                    onChange={(e) => setUntil(e.target.value)}
                                 />
                             </div>
                         </div>

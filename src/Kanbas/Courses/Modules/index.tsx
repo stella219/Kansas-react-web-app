@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModuleControlButtons from "./ModuleControlButtons";
 import { BsGripVertical } from 'react-icons/bs';
 import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import {useParams} from 'react-router';
-import * as db from "../../Database";
-import { addModule, editModule, updateModule, deleteModule }
+import * as client from "./client";
+import { setModules, addModule, editModule, updateModule, deleteModule }
   from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -15,12 +15,38 @@ export default function Modules() {
     const [moduleName, setModuleName] = useState<any>("");
     const { modules } = useSelector((state: any) => state.modulesReducer);
     const dispatch = useDispatch();
+    const fetchModules = async () => {
+        const modules = await client.findModulesForCourse(cid as string);
+        dispatch(setModules(modules));
+      };
+      useEffect(() => {
+        fetchModules();
+      }, []);
+    
+    //createModule funtion to invoke with courseID and module object to create a new module for current course.
+    const createModule = async (module: any) => {
+    const newModule = await client.createModule(cid as string, module);
+    dispatch(addModule(newModule));
+    };
+    
+    //Implement the removeModule event handler that invokes the deleteModule client function passing it the moduleId of the module we want to remove
+    const removeModule = async (moduleId: string) => {
+        await client.deleteModule(moduleId);
+        dispatch(deleteModule(moduleId));
+      };
+    
+    //implement an async function saveModule invoked when the user clicks the Update or Save button as shown below
+    const saveModule = async (module: any) => {
+        const status = await client.updateModule(module);
+        dispatch(updateModule(module));
+      };
+    
 
     return (
         <div id="wd-modules">
             <ModulesControls moduleName={moduleName} setModuleName={setModuleName}
                 addModule={() => {
-                dispatch(addModule({ name: moduleName, course: cid }));
+                createModule({ name: moduleName, course: cid });
                 setModuleName("");
                 }}
             /><br /><br />
@@ -35,10 +61,10 @@ export default function Modules() {
                             module.name
                         ) : (
                             <input className="form-control w-50 d-inline-block"
-                                onChange={(e) => dispatch(updateModule({ ...module, name: e.target.value }))}
+                                onChange={(e) => saveModule({ ...module, name: e.target.value })}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
-                                    dispatch(updateModule({ ...module, editing: false }));
+                                        saveModule({ ...module, editing: false });
                                     }
                                 }}
                                 value={module.name}/>
@@ -46,7 +72,7 @@ export default function Modules() {
                         <ModuleControlButtons 
                             moduleId={module._id}  
                             deleteModule={(moduleId) => {
-                                dispatch(deleteModule(moduleId));
+                                removeModule(moduleId); 
                             }}
                             editModule={(moduleId) => dispatch(editModule(moduleId))}
                         />

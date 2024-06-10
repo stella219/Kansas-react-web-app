@@ -4,8 +4,12 @@ import Home from "./Home";
 import {Navigate, Route, Routes, useParams, useLocation} from 'react-router';
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
+import QuizPreview from "./Quizzes/Preview";
+import Quizzes from "./Quizzes";
 import { FaAlignJustify } from "react-icons/fa6";
 import Grades from "./Grades";
+import Answers from "./Quizzes/Answers";
+import TakingQuiz from "./Quizzes/TakingQuiz";
 
 export default function Courses({ courses }: { courses: any[]; }) {
     const { cid } = useParams();
@@ -22,7 +26,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
                 <div className="d-none d-md-block">
                 <CoursesNavigation />
                 </div>
-                <div className="flex-fill">
+                <div className="flex-fill" style={{ height: '100%' }} >
                     <Routes>
                         <Route path="/" element={<Navigate to="Home" />} />
                         <Route path="Home" element={<Home />} />
@@ -30,6 +34,10 @@ export default function Courses({ courses }: { courses: any[]; }) {
                         <Route path="Assignments" element={<Assignments />} />
                         <Route path="Assignments/:aid" element={<AssignmentEditor />} />
                         <Route path="Grades" element={<Grades />} />
+                        <Route path="Quizzes" element={<Quizzes />} />
+                        <Route path="Quizzes/:qid" element={<QuizPreview />} />
+                        <Route path="Quizzes/:qid/Answers" element={<Answers />} />
+                        <Route path="Quizzes/:qid/TakingQuiz" element={<TakingQuiz />} />
                     </Routes>
                 </div>
             </div>

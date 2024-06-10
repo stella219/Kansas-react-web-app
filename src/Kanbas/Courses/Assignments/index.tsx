@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BsGripVertical } from 'react-icons/bs';
 import { IoIosCreate } from 'react-icons/io';
 import { FaTrash } from 'react-icons/fa';
@@ -6,23 +6,38 @@ import {useDispatch, useSelector} from "react-redux";
 import { AiFillCaretDown, AiOutlinePlus } from 'react-icons/ai';
 import { BiDotsVerticalRounded } from 'react-icons/bi';
 import { HiOutlineMagnifyingGlass } from 'react-icons/hi2';
-import { useParams } from 'react-router';
-import { Link } from 'react-router-dom';
-import * as db from '../../Database';
-import { deleteAssignment } from './assignmentsReducer';
+import { Navigate, useParams } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
+import * as client from "./client";
+import { deleteAssignment, updateAssignment, addAssignment, setAssignment, editAssignment } from './assignmentsReducer';
 import DeleteModal from './DeleteModal';
+import moment from 'moment';
 
+function formatDateOutput(dateTimeStr: any) {
+    // Handles conversion to display format.
+    return moment(dateTimeStr, ['YYYY-MM-DDTHH:mm', 'MMM D [at] hh:mma']).format('MMM D [at] hh:mma');
+}
 
 export default function Assignments() {
     const { cid } = useParams();
+    //Retrieve the assignments
+    const fetchAssignments = async () => {
+        const assignments = await client.findAssignmentsForCourse(cid as string);
+        dispatch(setAssignment(assignments));
+    }
+    useEffect(() => {
+        fetchAssignments();
+    }, [cid]);
+
+
     const assignments = useSelector((state:any) => state.assignmentsReducer.assignments);
-    const assignment = useSelector((state:any) => state.assignmentsReducer.assignment);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const courseAssignments = assignments.filter((assignment:any) => assignment.course === cid);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
+    const [currentAssignmentId, setCurrentAssignmentId] = useState<string>("");
 
     const handleOpenDeleteModal = (assignmentId: any, event:any) => {
     event.stopPropagation();  // Stop the event from propagating to parent elements
@@ -34,10 +49,12 @@ export default function Assignments() {
         setShowDeleteModal(false);
     };
 
-    const handleDeleteAssignment = () => {
-        dispatch(deleteAssignment(currentAssignmentId));
+    const removeAssignment= async (assignmentId: string) => {
+        await client.deleteAssignment(assignmentId);
+        dispatch(deleteAssignment(assignmentId));
         setShowDeleteModal(false);
     };
+
 
     return (
         <div>
@@ -79,18 +96,19 @@ export default function Assignments() {
                                         <div className="flex-grow-1 me-5">
                                             <div className="p-1 ps-3">
                                                 <span className="wd-assignment-link text-black">{assignment.title}</span>
-                                                <p className="text-wrap">
+                                                <p className="text-wrap fs-6">
                                                     <span className="text-danger wd-15">Multiple Modules | </span>
                                                     <span className="text-black fw-bold">Not available until </span>  
-                                                    <span className="text-black">{assignment.available} | </span>
+                                                    <span className="text-black">{formatDateOutput(assignment.available)} | </span>
                                                     <span className="text-black fw-bold">Due </span>
-                                                    <span className="text-black">{assignment.until} | {assignment.points}</span>
+                                                    <span className="text-black">{formatDateOutput(assignment.until)} | {assignment.points}</span>
                                                     <span className="text-black"> pts </span>
                                                 </p>
                                             </div>
                                         </div>
                                         <Link to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}>
-                                            <IoIosCreate className="fs-4 text-success" />
+                                            <IoIosCreate className="fs-4 text-success" 
+                                            />
                                         </Link>
                                     </Link>
                                     <FaTrash className="fs-4 text-danger ms-2" 
@@ -103,8 +121,8 @@ export default function Assignments() {
                 {showDeleteModal && (
                 <DeleteModal
                     showModal={showDeleteModal}
-                    handleClose={handleCloseDeleteModal}
-                    handleDelete={handleDeleteAssignment}
+                    handleClose={ () => handleCloseDeleteModal()}
+                    handleDelete={() => removeAssignment(currentAssignmentId as string)}
                 />
                  )}
             </div>
