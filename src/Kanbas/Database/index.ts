@@ -6,6 +6,7 @@ import users from './users.json';
 import grades from './grades.json';
 import quizzes from './quizzes.json';
 import questions from './questions.json';
+import quizHistory from './quizHistory.json';
 
 export { 
     courses, 
@@ -15,5 +16,6 @@ export {
     users,
     grades,
     quizzes,
-    questions
+    questions,
+    quizHistory
 };

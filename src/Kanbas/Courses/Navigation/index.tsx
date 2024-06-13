@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import PeopleTable from '../People/Table';
 import { courses } from "../../Database";
 import { useParams } from 'react-router';
 import "./index.css";
@@ -6,16 +7,17 @@ import "./index.css";
 export default function CoursesNavigation() {
     const { cid } = useParams();
     const { pathname } = useLocation();
-    const course = courses.find((course) => course._id === cid);
+    const course = courses.find((course:any) => course._id === cid);
     
     const links = [
         { label: "Home", path: `/Kanbas/Courses/${course?._id}/Home` }, 
         { label: "Modules", path: `/Kanbas/Courses/${course?._id}/Modules` }, 
         { label: "Piazza", path: `/Kanbas/Courses/${course?._id}/Piazza` }, 
-        { label: "Zoom", path: `/Kanbas/Courses/${course?._id}/Zoom` }, 
+        { label: "Zoom", path: `/Kanbas/Courses/${course?._id}/Zoom` },
         { label: "Assignments", path: `/Kanbas/Courses/${course?._id}/Assignments` }, 
         { label: "Quizzes", path: `/Kanbas/Courses/${course?._id}/Quizzes` }, 
-        { label: "Grades", path: `/Kanbas/Courses/${course?._id}/Grades` }
+        { label: "Grades", path: `/Kanbas/Courses/${course?._id}/Grades` },
+        { label: "People", path: `/Kanbas/Courses/${course?._id}/People` }
     ];
 
     return (
