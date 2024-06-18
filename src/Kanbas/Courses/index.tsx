@@ -26,7 +26,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <hr />
             <div className="d-flex">
                 <div className="d-none d-md-block">
-                <CoursesNavigation />
+                <CoursesNavigation courses={courses} />
                 </div>
                 <div className="flex-fill" style={{ height: '100%' }} >
                     <Routes>
@@ -35,8 +35,8 @@ export default function Courses({ courses }: { courses: any[]; }) {
                         <Route path="Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments />} />
                         <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-                        <Route path="People" element={<PeopleTable />} />
-                        <Route path="People/:uid" element={<PeopleTable />} />
+                        <Route path="People" element={<PeopleTable cid={cid} />} />
+                        <Route path="People/:uid" element={<PeopleTable cid={cid} />} />
                         <Route path="Grades" element={<Grades />} />
                         <Route path="Quizzes" element={<Quizzes />} />
                         <Route path="Quizzes/:qid" element={<QuizPreview />} />

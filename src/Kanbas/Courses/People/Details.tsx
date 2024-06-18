@@ -13,6 +13,7 @@ export default function PeopleDetails({
 }) {
     const navigate = useNavigate();
     const { uid, cid } = useParams();
+    console.log(uid, cid);
     const [user, setUser] = useState<any>({});
     const [name, setName] = useState("");
     const [editing, setEditing] = useState(false);

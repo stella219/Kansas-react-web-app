@@ -4,11 +4,11 @@ import { courses } from "../../Database";
 import { useParams } from 'react-router';
 import "./index.css";
 
-export default function CoursesNavigation() {
+export default function CoursesNavigation({courses} : {courses: any[]}) {
     const { cid } = useParams();
     const { pathname } = useLocation();
     const course = courses.find((course:any) => course._id === cid);
-    
+    console.log(courses);
     const links = [
         { label: "Home", path: `/Kanbas/Courses/${course?._id}/Home` }, 
         { label: "Modules", path: `/Kanbas/Courses/${course?._id}/Modules` }, 

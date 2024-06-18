@@ -5,7 +5,7 @@ import PeopleDetails from "./Details";
 import { Link } from "react-router-dom";
 import { FaPlus } from "react-icons/fa6";
 
-export default function PeopleTable() {
+export default function PeopleTable({cid} : {cid: any}) {
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
@@ -80,7 +80,7 @@ export default function PeopleTable() {
                 <td className="text-nowrap"> 
                     <div className="text-danger">
                         <FaCircleUser className="fs-3 me-1"/> 
-                        <Link to={`/Kanbas/Courses/1234/People/${user._id}`}>
+                        <Link to={`/Kanbas/Courses/${cid}/People/${user._id}`}>
                             {user.firstName} {user.lastName} 
                         </Link>
                     </div>
