@@ -15,7 +15,7 @@ export default function Modules() {
     const [moduleName, setModuleName] = useState<any>("");
     const { modules } = useSelector((state: any) => state.modulesReducer);
     const dispatch = useDispatch();
-    
+
     const fetchModules = async () => {
         const modules = await client.findModulesForCourse(cid as string);
         dispatch(setModules(modules));
@@ -28,6 +28,7 @@ export default function Modules() {
     const createModule = async (module: any) => {
     const newModule = await client.createModule(cid as string, module);
     dispatch(addModule(newModule));
+    fetchModules();
     };
     
     //Implement the removeModule event handler that invokes the deleteModule client function passing it the moduleId of the module we want to remove
