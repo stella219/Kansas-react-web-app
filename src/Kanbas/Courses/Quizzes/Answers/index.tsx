@@ -107,11 +107,11 @@ export default function QuizAnswerScore() {
                             <div key={index} className="position-relative mt-4">
                                 <div className="card rounded-0">
                                     <div className="card-header d-flex justify-content-between align-items-center">
-                                        <h5 className="mb-0">{question.name}</h5>
+                                        <h5 className="mb-0">{question.title}</h5>
                                         <span>{questionScore} / {question.points} pts</span>
                                     </div>
                                     <div className="card-body">
-                                        <p>{question.question_text}</p>
+                                        <p>{question.question}</p>
                                         <div className="ms-3">
                                             {studentAnswer && <AnswerFeedback question={question} studentAnswer={studentAnswer} />}
                                         </div>

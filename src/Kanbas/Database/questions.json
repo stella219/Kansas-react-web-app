@@ -1,88 +1,101 @@
 [
 {
     "_id": "qt01",
-    "name" : "Question 1",
+    "title" : "Question 1",
     "type": "Multiple Choice",
-    "question_text": "Which of the following is the primary advantage of a liquid rocket engine over a solid rocket engine?",
-    "options": [
+    "question": "Which of the following is the primary advantage of a liquid rocket engine over a solid rocket engine?",
+    "choices": [
       "Higher specific impulse",
       "Lower cost",
       "Simpler design",
       "Shorter burn time"
     ],
-    "correct_answer": "Higher specific impulse",
+    "answers": {
+      "1": "Higher specific impulse"
+    },
     "points": 5,
-    "quiz" : "qz01"
+    "quizID" : "qz01"
   },
   {
     "_id": "qt02",
-    "name" : "Question 2",
+    "title" : "Question 2",
     "type": "True/False",
-    "question_text": "Specific impulse is a measure of how efficiently a rocket uses its fuel.",
-    "correct_answer": "True",
+    "question": "Specific impulse is a measure of how efficiently a rocket uses its fuel.",
+    "chocies": ["True", "False"],
+    "answers": {
+      "1": "True"
+    },
     "points": 3,
-    "quiz" : "qz01"
+    "quizID" : "qz01"
   },
   {
     "_id": "qt03",
-    "name": "Question 3",
+    "title": "Question 3",
     "type": "Fill in the Blanks",
-    "question_text": "The ___a_____ effect and the ___b_____ principle are fundamental to rocket propulsion.",
-    "correct_answer": {
-      "a": "Newton's Third Law",
-      "b": "conservation of momentum"
+    "question": "The __1__ effect explains the __2__ of rocket propulsion.",
+    "chocies": [],
+    "answers": {
+      "1": "Newton's Third Law",
+      "2": "principle"
     },
     "points": 2,
-    "quiz": "qz01"
+    "qquizID": "qz01"
   },
   {
     "_id": "qt04",
-    "name" : "Question 1",
+    "title" : "Question 1",
     "type": "Multiple Choice",
-    "question_text": "What is the primary purpose of an oxidizer in a rocket engine?",
-    "options": [
+    "question": "What is the primary purpose of an oxidizer in a rocket engine?",
+    "choices": [
       "To increase the weight of the rocket",
       "To provide the necessary oxygen for combustion",
       "To cool the engine",
       "To stabilize the fuel"
     ],
-    "correct_answer": "To provide the necessary oxygen for combustion",
+    "answers": {
+      "2": "To provide the necessary oxygen for combustion"
+    },
     "points": 5,
-    "quiz" : "qz02"
+    "quizID" : "qz02"
   },
   {
     "_id": "qt05",
-    "name" : "Question 2",
+    "title" : "Question 2",
     "type": "True/False",
-    "question_text": "Solid rocket engines are easier to control than liquid rocket engines.",
-    "correct_answer": "False",
+    "question": "Solid rocket engines are easier to control than liquid rocket engines.",
+    "choices": ["True", "False"],
+    "answers": {
+      "2": "False"
+    },
     "points": 3,
-    "quiz" : "qz02"
+    "quizID" : "qz02"
   },
   {
     "_id": "qt06",
-    "name" : "Question 3",
+    "title" : "Question 3",
     "type": "Fill in the Blanks",
-    "question_text": "The efficiency of a rocket engine is measured by its ____a____.",
-    "correct_answer": {
+    "question": "The efficiency of a rocket engine is measured by its ____a____.",
+    "answers": {
       "a": "specific impulse"
     },
     "points": 1,
-    "quiz" : "qz02"
+    "quizID" : "qz02"
   },
   {
     "_id": "qt07",
-    "name" : "Question 4",
+    "title" : "Question 4",
     "type": "Multiple Choice",
-    "question_text": "Which type of rocket engine is typically used for long-duration space missions?",
-    "options": [
+    "question": "Which type of rocket engine is typically used for long-duration space missions?",
+    "choices": [
       "Solid rocket engine",
       "Hybrid rocket engine",
       "Ion thruster",
       "Liquid rocket engine"
     ],
-    "correct_answer": "Ion thruster",
+    "answers": {
+      "1": "Ion thruster"
+    },
     "points": 5,
-    "quiz" : "qz02"
+    "quizID" : "qz02"
   }
 ]

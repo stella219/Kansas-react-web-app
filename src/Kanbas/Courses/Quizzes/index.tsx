@@ -1,5 +1,4 @@
-import React from 'react';
-import { BsGripVertical } from 'react-icons/bs';
+import React, {useEffect, useState} from 'react';
 import {Link } from 'react-router-dom';
 import { AiFillCaretDown, AiOutlinePlus } from 'react-icons/ai';
 import { useParams } from 'react-router';
@@ -7,11 +6,33 @@ import { HiOutlineMagnifyingGlass } from 'react-icons/hi2';
 import { FaRocket } from 'react-icons/fa6';
 import { IoIosCreate } from 'react-icons/io';
 import { FaTrash} from 'react-icons/fa';
-import { quizzes } from "../../Database";
+import { findQuizzesForCourse } from './client';
+
+// Define a Quiz interface
+interface Quiz {
+    _id: string;
+    title: string;
+    due_date: string;
+    points: number;
+    questions: Array<any>; // Specify a more detailed type if possible
+  }
 
 export default function Quizzes() {
-    const {cid,qid} = useParams();
-    const courseQuizzes = quizzes.filter((quiz: any) => quiz.course === cid);
+    const {cid} = useParams();
+    const [courseQuizzes, setCourseQuizzes] = useState<Quiz[]>([]); 
+
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                const quizzes = await findQuizzesForCourse(cid as string);
+                setCourseQuizzes(quizzes);
+                console.log('Quizzes:', quizzes);
+            } catch (error) {
+                console.error('Failed to fetch quizzes. Please check the console for more details.');
+            }
+        };
+        fetchQuizzes();
+    }, [cid]);
 
     return (
         <div>
@@ -20,7 +41,7 @@ export default function Quizzes() {
                     <span className="input-group-text bg-white border-end-0">
                         <HiOutlineMagnifyingGlass />
                     </span>
-                    <input
+                1    <input
                         type="text"
                         className="form-control border-start-0"
                         id="wd-search-quiz"
@@ -52,7 +73,7 @@ export default function Quizzes() {
                                                     <span className="wd-15 fw-bold">Closed  &nbsp; &nbsp;Due</span> &nbsp;
                                                     <span>{quiz.due_date} </span> &nbsp;&nbsp;
                                                     <span>{quiz.points} pts</span> &nbsp;&nbsp;
-                                                    <span>{quiz.number_of_questions} Questions</span> 
+                                                    <span>{quiz.questions.length} Questions</span> 
                                                 </p>
                                             </div>
                                         </div>
@@ -62,6 +83,7 @@ export default function Quizzes() {
                                 </li>
                             ))}
                         </ul>
+                        
                     </li>
                 </ul>
             </div>
