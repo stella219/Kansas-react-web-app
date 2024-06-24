@@ -3,47 +3,50 @@ import { BsQuestionCircle, BsFillPlayFill } from 'react-icons/bs';
 import { BiErrorCircle } from 'react-icons/bi';
 import { useParams, useLocation } from 'react-router-dom';
 import { GrEdit } from "react-icons/gr";
-import { LiaHandPointRightSolid } from 'react-icons/lia'; 
+import { LiaHandPointRightSolid } from 'react-icons/lia';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { submitQuiz } from './submitQuiz';
 import CountdownTimer from './countDownTimer';
-import { findQuizDetails, findQuestionsForQuiz, findQuestionById } from '../client';
+import { findQuizDetails, findQuestionsByQuiz, findRecordByUserByQuiz } from '../client';
 
 type SelectedAnswers = {
     [key: string]: string | { [key: string]: string };
-};
-
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/Los_Angeles',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).format(date);
 };
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
 
+// Updated formatDate function to match the desired format "June 21 at 8:59pm"
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'long', // Full month name
+        day: '2-digit', // Two digit day
+    }).format(date) + ' at ' + new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric', // Hour without leading zeros
+        minute: '2-digit', // Two digit minute
+        hour12: true // Use 12-hour format
+    }).format(date).toLowerCase(); // Convert AM/PM to lowercase
+};
+
 export default function QuizPage() {
-
-    const { cid, qid} = useParams();
-
-    const navigate = useNavigate(); 
-    const currentUser = useSelector((state: any) => state.accountReducer.currentUser); // Get the current user from Redux
-    const [quiz, setQuiz] = useState<any>(null); // State for quiz data
-    const [quizQuestions, setQuizQuestions] = useState<any[]>([]); // Explicitly typing as any[]
+    const { cid, quizID } = useParams();
+    const navigate = useNavigate();
+    const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
+    const [quiz, setQuiz] = useState<any>(null);
+    const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<SelectedAnswers>({});
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showTimer, setShowTimer] = useState(true);
-    const currentQuestion = quizQuestions[currentQuestionIndex] as any; // Type assertion
-    const [startedAt] = useState(new Date().toISOString());
-    const startedTime = new Date(startedAt);
+    const [previousRecord, setPreviousRecord] = useState<any>(null);
+    const currentQuestion = quizQuestions[currentQuestionIndex] as any;
+
+    const query = useQuery();
+    const startedAt: string = query.get('startedAt') || new Date().toISOString();
+    const startedTime = startedAt ? new Date(startedAt) : new Date();
     const timeLimit = quiz && quiz.time_limit === "Yes" ? parseInt(quiz.how_long ?? "0") : 0;
     const dueTime = new Date(startedTime.getTime() + timeLimit * 60000);
     const initialMinutes = timeLimit;
@@ -52,43 +55,37 @@ export default function QuizPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const quizData = await findQuizDetails(cid as string, qid as string);
-                console.log("Fetched quiz data:", quizData);
+                const quizData = await findQuizDetails(cid as string, quizID as string);
                 setQuiz(quizData);
-    
-                // const questionsData = await findQuestionsForQuiz(qid as string);
-                // console.log("Fetched questions data:", questionsData);
-                // setQuizQuestions(questionsData);
-    
+
+                const questionsData = await findQuestionsByQuiz(quizID as string);
+                setQuizQuestions(questionsData);
+
+                const recordData = await findRecordByUserByQuiz(currentUser._id, quizID as string);
+                setPreviousRecord(recordData);
             } catch (error) {
                 console.error("Error fetching quiz data:", error);
             }
         };
         fetchData();
-    });
+    }, [cid, quizID]);
 
-
-
-    // Helper function to go to the next question
     const handleNext = () => {
         if (currentQuestionIndex < quizQuestions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
     };
 
-    // Helper function to go to a specific question
-    const handleQuestionClick = (index: number) => {
-        setCurrentQuestionIndex(index);
-    };
-
-    // Helper function to go to the previous question
     const handlePrevious = () => {
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
         }
     };
 
-    // Helper function to handle answer change
+    const handleQuestionClick = (index: number) => {
+        setCurrentQuestionIndex(index);
+    };
+
     const handleAnswerChange = (questionId: string, answer: any) => {
         setSelectedAnswers({
             ...selectedAnswers,
@@ -96,12 +93,21 @@ export default function QuizPage() {
         });
     };
 
-    const handleSubmitQuiz = () => {
-        submitQuiz(currentUser, cid as string, qid as string, startedAt, selectedAnswers, quizQuestions, navigate);
+    const handleSubmitQuiz = async () => {
+        console.log(currentUser);
+        await submitQuiz(currentUser, cid as string, quizID as string, startedAt, selectedAnswers, quizQuestions, navigate);
         setIsSubmitted(true);
         setTimeout(() => {
-            navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Answers`);
-        }, 2000); // 2 seconds delay before redirecting to the answers page
+            navigate(`/Kanbas/Courses/${cid}/Quizzes/${quizID}/Answers/${currentUser._id}`);
+        }, 1000);
+    };
+
+    const getPreviousAnswer = (questionId: string) => {
+        if (previousRecord) {
+            const answer = previousRecord.answers.find((ans: any) => ans.questionId === questionId);
+            return answer ? answer.answer : null;
+        }
+        return null;
     };
 
     return (
@@ -121,7 +127,7 @@ export default function QuizPage() {
                     {currentQuestion && (
                         <div className="d-flex mt-4 align-items-start">
                             <LiaHandPointRightSolid style={{ fontSize: '1.5rem', marginRight: '10px', marginTop: '10px' }} />
-                            <div className="card flex-grow-1" style={{ minWidth: '500px' }}>
+                            <div className="card flex-grow-1" style={{ minWidth: '450px' }}>
                                 <div className="card-header d-flex justify-content-between align-items-center">
                                     <h5 className="mb-0">{currentQuestion.title}</h5>
                                     <span>{currentQuestion.points} pts</span>
@@ -185,11 +191,34 @@ export default function QuizPage() {
                                             ))}
                                         </div>
                                     )}
+                                    <div className="mt-3">
+                                        <strong>Your previous answer:</strong>
+                                        <div>
+                                            {currentQuestion.type === 'Multiple Choice' && getPreviousAnswer(currentQuestion._id)}
+                                            {currentQuestion.type === 'True/False' && getPreviousAnswer(currentQuestion._id)}
+                                            {currentQuestion.type === 'Fill in the Blanks' && (
+                                                <div>
+                                                    {Object.keys(currentQuestion.answers).map((key, idx) => (
+                                                        <div key={idx} className="mb-3 d-flex align-items-center">
+                                                            <label className="form-label me-2">{key}.</label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                disabled
+                                                                style={{ maxWidth: '300px' }}
+                                                                value={(getPreviousAnswer(currentQuestion._id) as { [key: string]: string })?.[key] || ''}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
-                    <div className="mt-3 mb-3 d-flex justify-content-between " style={{ minWidth: '500px' }}>
+                    <div className="mt-3 mb-3 d-flex justify-content-between " style={{ minWidth: '450px' }}>
                         <button
                             onClick={handlePrevious}
                             className="btn btn-secondary rounded-0"
@@ -205,7 +234,7 @@ export default function QuizPage() {
                             Next <BsFillPlayFill />
                         </button>
                     </div>
-                    <div className="border d-flex p-2 justify-content-between align-items-center" style={{ minWidth: '500px' }}>
+                    <div className="border d-flex p-2 justify-content-between align-items-center" style={{ minWidth: '450px' }}>
                         <div className="ms-auto me-3">Quiz saved at {formatDate(startedAt)}</div>
                         <button
                             onClick={handleSubmitQuiz}
@@ -217,7 +246,7 @@ export default function QuizPage() {
                     {currentUser.role === 'FACULTY' && (
                         <>
                             <div className="border p-1 d-flex align-items-center mb-3 mt-5" style={{ backgroundColor: '#f0f0f0', color: 'black' }}>
-                                <GrEdit className="ms-2 me-3" /> Keep Editing This Quiz   
+                                <GrEdit className="ms-2 me-3" /> Keep Editing This Quiz
                             </div>
                             <div>
                                 <h5>Questions</h5>
@@ -233,11 +262,11 @@ export default function QuizPage() {
                         </>
                     )}
                 </div>
-                <div className="col-md-3 mt-2 ms-3" style={{ minWidth: '500px' }}>
+                <div className="col-md-3 mt-2">
                     {currentUser.role === 'STUDENT' && (
-                        <div className="d-none d-md-block float-end">
+                        <div>
                             <h4>Questions</h4>
-                            <ul className="list-group mb-3" style={{ maxWidth: '150px' }}>
+                            <ul className="list-group mb-3">
                                 {quizQuestions.map((question: any, index: number) => (
                                     <li key={question._id} className="list-group-item d-flex align-items-center border-0">
                                         <BsQuestionCircle className="me-2" />

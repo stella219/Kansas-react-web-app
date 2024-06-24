@@ -14,7 +14,6 @@ export default function CoursesNavigation({courses} : {courses: any[]}) {
         { label: "Zoom", path: `/Kanbas/Courses/${course?._id}/Zoom` },
         { label: "Assignments", path: `/Kanbas/Courses/${course?._id}/Assignments` }, 
         { label: "Quizzes", path: `/Kanbas/Courses/${course?._id}/Quizzes` }, 
-       // { label: "Take", path: `/Kanbas/Courses/${course?._id}/Quizzes/${quiz._id}` }, 
         { label: "Grades", path: `/Kanbas/Courses/${course?._id}/Grades` },
         { label: "People", path: `/Kanbas/Courses/${course?._id}/People` }
     ];

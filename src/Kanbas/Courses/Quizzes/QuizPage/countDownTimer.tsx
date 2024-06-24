@@ -6,27 +6,32 @@ interface CountdownTimerProps {
 }
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({ initialMinutes, initialSeconds }) => {
-    const [minutes, setMinutes] = useState(initialMinutes);
-    const [seconds, setSeconds] = useState(initialSeconds);
+    const [time, setTime] = useState({ minutes: initialMinutes, seconds: initialSeconds });
 
     useEffect(() => {
+        // Reset the timer to the initial values whenever they change
+        setTime({ minutes: initialMinutes, seconds: initialSeconds });
+
         const timer = setInterval(() => {
-            if (seconds > 0) {
-                setSeconds(seconds - 1);
-            } else if (minutes > 0) {
-                setMinutes(minutes - 1);
-                setSeconds(59);
-            } else {
-                clearInterval(timer);
-            }
+            setTime(prevTime => {
+                const { minutes, seconds } = prevTime;
+                if (seconds > 0) {
+                    return { minutes, seconds: seconds - 1 };
+                } else if (minutes > 0) {
+                    return { minutes: minutes - 1, seconds: 59 };
+                } else {
+                    clearInterval(timer);
+                    return { minutes: 0, seconds: 0 };
+                }
+            });
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [minutes, seconds]);
+    }, [initialMinutes, initialSeconds]); // Add initialMinutes and initialSeconds to the dependency array
 
     return (
         <div>
-            <span>{minutes} Minutes, {seconds} Seconds</span>
+            <span>{time.minutes} Minutes, {time.seconds} Seconds</span>
         </div>
     );
 };
